@@ -1,4 +1,3 @@
-
 include "../../../../node_modules/circomlib/circuits/comparators.circom";
 
 template VerifyStructure(txType) {
