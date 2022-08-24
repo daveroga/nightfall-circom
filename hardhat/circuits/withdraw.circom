@@ -5,7 +5,7 @@ include "../node_modules/circomlib/circuits/comparators.circom";
 include "../node_modules/circomlib/circuits/mux1.circom";
 include "../node_modules/circomlib/circuits/mux2.circom";
 include "../node_modules/circomlib/circuits/poseidon.circom";
-include "../node_modules/circomlib/circuits/escalarmul.circom";
+include "../node_modules/circomlib/circuits/babyjub.circom";
 
 template VerifyStructure(txType) {
     signal input value;
@@ -122,7 +122,7 @@ template VerifyNullifiers(minNullifiers, maxNullifiers) {
 
     component zkpPrivateKeys[maxNullifiers];
     component nullifierKeys[maxNullifiers];
-        
+    component zkpPublicKey[maxNullifiers];    
 
     for(var i=0; i < maxNullifiers; i++) {
 
@@ -134,7 +134,8 @@ template VerifyNullifiers(minNullifiers, maxNullifiers) {
         nullifierKeys[i].inputs[0] <== rootKey[i];
         nullifierKeys[i].inputs[1] <== 7805187439118198468809896822299973897593108379494079213870562208229492109015;
 
-        //TODO: Calculate zkpPublicKey using scalar mult
+        zkpPublicKey[i] = BabyPbk();
+        zkpPublicKey[i].in <== zkpPrivateKeys[i].out;
 
         isNullifierValueZero[i] = IsZero();
         isNullifierValueZero[i].in <== oldCommitmentValues[i];
@@ -143,16 +144,16 @@ template VerifyNullifiers(minNullifiers, maxNullifiers) {
         calculatedNullifierHash[i].inputs[0] <== packedErcAddress;
         calculatedNullifierHash[i].inputs[1] <== idRemainder;
         calculatedNullifierHash[i].inputs[2] <== oldCommitmentValues[i];
-        calculatedNullifierHash[i].inputs[3] <== 0; //zkpPublicKeys[0]
-        calculatedNullifierHash[i].inputs[4] <== 0; //zkpPublicKeys[1]
+        calculatedNullifierHash[i].inputs[3] <== zkpPublicKey[i].Ax;
+        calculatedNullifierHash[i].inputs[4] <== zkpPublicKey[i].Ay;
         calculatedNullifierHash[i].inputs[5] <== oldCommitmentSalts[i];
 
         calculatedNullifierHashFee[i] = Poseidon(6);
         calculatedNullifierHashFee[i].inputs[0] <== maticAddress;
         calculatedNullifierHashFee[i].inputs[1] <== 0;
         calculatedNullifierHashFee[i].inputs[2] <== oldCommitmentValues[i];
-        calculatedNullifierHashFee[i].inputs[3] <== 0; //zkpPublicKeys[0]
-        calculatedNullifierHashFee[i].inputs[4] <== 0; //zkpPublicKeys[1]
+        calculatedNullifierHashFee[i].inputs[3] <== zkpPublicKey[i].Ax;
+        calculatedNullifierHashFee[i].inputs[4] <== zkpPublicKey[i].Ay;
         calculatedNullifierHashFee[i].inputs[5] <== oldCommitmentSalts[i];
 
         //TODO: This is probably wrong!
