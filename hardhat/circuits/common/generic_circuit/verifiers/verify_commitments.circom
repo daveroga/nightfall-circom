@@ -6,11 +6,11 @@ include "../../../../node_modules/circomlib/circuits/poseidon.circom";
 template VerifyCommitments(minCommitments, maxCommitments) {
     signal input packedErcAddress;
     signal input idRemainder;
-    signal input commitmentHashes[maxCommitments];
+    signal input commitmentsHashes[maxCommitments];
     signal input newCommitmentsValues[maxCommitments];
     signal input newCommitmentsSalts[maxCommitments];
     signal input recipientPublicKey[maxCommitments][2];
-    signal input ercAddressFee;
+    signal input maticAddress;
 
     component calculatedCommitmentHash[maxCommitments];
 
@@ -18,10 +18,8 @@ template VerifyCommitments(minCommitments, maxCommitments) {
 
     component commitment[maxCommitments];
     component commitmentFee[maxCommitments];
-    component isCommitmentEqual[maxCommitments];
-    component isCommitmentFeeEqual[maxCommitments];
-    component commitmentValid[maxCommitments];
     component isCommitmentValueZero[maxCommitments];
+
 
     for(var i=0; i < maxCommitments; i++) {
 
@@ -37,14 +35,13 @@ template VerifyCommitments(minCommitments, maxCommitments) {
         calculatedCommitmentHash[i].inputs[5] <== newCommitmentsSalts[i];
 
         calculatedCommitmentHashFee[i] = Poseidon(6);
-        calculatedCommitmentHashFee[i].inputs[0] <== ercAddressFee;
+        calculatedCommitmentHashFee[i].inputs[0] <== maticAddress;
         calculatedCommitmentHashFee[i].inputs[1] <== 0;
         calculatedCommitmentHashFee[i].inputs[2] <== newCommitmentsValues[i];
         calculatedCommitmentHashFee[i].inputs[3] <== recipientPublicKey[i][0];
         calculatedCommitmentHashFee[i].inputs[4] <== recipientPublicKey[i][1];
         calculatedCommitmentHashFee[i].inputs[5] <== newCommitmentsSalts[i];
 
-        //TODO: This is probably wrong!
         commitment[i] = Mux2();
         commitment[i].c[0] <== calculatedCommitmentHash[i].out;
         commitment[i].c[1] <== 0;
@@ -55,17 +52,9 @@ template VerifyCommitments(minCommitments, maxCommitments) {
 
         commitmentFee[i] = Mux1();
         commitmentFee[i].c[0] <== calculatedCommitmentHashFee[i].out;
-        commitmentFee[i].c[1] <== 1;
+        commitmentFee[i].c[1] <== 0;
         commitmentFee[i].s <== isCommitmentValueZero[i].out;
 
-        isCommitmentEqual[i] = IsZero();
-        isCommitmentEqual[i].in <== commitment[i].out - commitmentHashes[i];
-
-        isCommitmentFeeEqual[i] = IsZero();
-        isCommitmentFeeEqual[i].in <== commitmentFee[i].out - commitmentHashes[i];
-
-        commitmentValid[i] = IsZero();
-        commitmentValid[i].in <== isCommitmentFeeEqual[i].out + isCommitmentEqual[i].out;
-        commitmentValid[i].out === 0;
+        assert(commitment[i].out == commitmentsHashes[i] || commitmentFee[i].out == commitmentsHashes[i]);
     }
 }

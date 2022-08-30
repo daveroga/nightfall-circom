@@ -1,7 +1,7 @@
 const fs = require("fs");
 const solidityRegex = /pragma solidity \^\d+\.\d+\.\d+/;
 
-let circuits = ["deposit", "withdraw"];
+let circuits = ["deposit", "withdraw", "transfer"];
 
 for (let i=0; i<circuits.length; i++) {    
   console.log(`Fixing ${circuits[i]}...`);

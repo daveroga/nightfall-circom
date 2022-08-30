@@ -2,7 +2,7 @@
 
 #export NODE_OPTIONS="--max-old-space-size=16384"
 
-declare -a array=("deposit" "withdraw")
+declare -a array=("deposit" "withdraw" "transfer")
 
 # get length of an array
 arraylength=${#array[@]}

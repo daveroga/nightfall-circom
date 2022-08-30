@@ -14,101 +14,46 @@ template VerifyStructure(txType) {
     signal input compressedSecrets[2]; 
 
     //Check that transaction type matches        
-    component txTypeEqual = IsZero();
-    txTypeEqual.in <== txType - transactionType;
-    txTypeEqual.out === 1;
+    assert(txType == transactionType);
 
     //ErcAddress cannot be zero. In transfer will contain the encrypted version of the ercAddress belonging to the ciphertext
-    component ercAddressNonZero = IsZero();
-    ercAddressNonZero.in <== ercAddress;
-    ercAddressNonZero.out === 0;
+    assert(ercAddress != 0);
 
     //Check ERC token type and value and token ID;
     if(txType == 1) {
-        value === 0;
+        assert(value == 0);
     } else {
-        //TODO: See how to check the following
-        //ERC20 -> Value > 0 and Id == 0
-        //ERC721 -> Value == 0
-        //ERC1155 -> Value > 0
+        assert((tokenType == 1 && value == 0) || (tokenType != 1 && value != 0));
+        assert((tokenType == 0 && tokenId == 0) || tokenType != 0);
     }
 
-    component nullifiersZero[4];
-    component commitmentsZero[3];
     
-    for(var i = 0; i < 4; i++) {
-        nullifiersZero[i] = IsZero();
-        nullifiersZero[i].in <== nullifiers[i];
+    if(txType == 0) {
+        assert(compressedSecrets[0] == 0 && compressedSecrets[1] == 0);
+        assert(recipientAddress == 0);
+        assert(commitments[0] != 0 && commitments[1] == 0 && commitments[2] == 0 
+            && nullifiers[0] == 0 && nullifiers[1] == 0 && nullifiers[2] == 0 && nullifiers[3] == 0);
+    } else if(txType == 1 || txType == 2) {
+        assert(recipientAddress != 0);
+        assert(nullifiers[0] != 0);
+        if(txType == 1) {
+            assert(compressedSecrets[0] != 0 || compressedSecrets[1] != 0);
+            assert(commitments[0] != 0);
+        } else {
+            assert(compressedSecrets[0] == 0 && compressedSecrets[1] == 0);
+            assert(commitments[2] == 0);
+        }
     }
-
-    component nullifiersDuplicated[6];
-    var index = 0;
 
     for(var i = 0; i < 4; i++) {
         for(var j = i+1; j < 4; j++) {
-            nullifiersDuplicated[index] = IsEqual();
-            nullifiersDuplicated[index].in[0] <== nullifiers[i];
-            nullifiersDuplicated[index].in[1] <== nullifiers[j];
-
-            //TODO: Check if duplicated only if nullifiers[j] is not zero
-
-            index++;
+            assert(nullifiers[j] == 0 || nullifiers[i] != nullifiers[j]);
         }
     }
 
     for(var i = 0; i < 3; i++) {
-        commitmentsZero[i] = IsZero();
-        commitmentsZero[i].in <== commitments[i];
-    }
-
-
-    component commitmentsNullified[3];
-    index = 0;
-
-    for(var i = 0; i < 3; i++) {
-        for(var j = i+1; j < 3; j++) {
-            commitmentsNullified[index] = IsEqual();
-            commitmentsNullified[index].in[0] <== commitments[i];
-            commitmentsNullified[index].in[1] <== commitments[j];
-
-            //TODO: Check if duplicated only if nullifiers[j] is not zero
-
-            index++;
+         for(var j = i+1; j < 3; j++) {
+            assert(commitments[j] == 0 || commitments[i] != commitments[j]);
         }
-    }
-
-    component recipientAddressZero = IsZero();
-    recipientAddressZero.in <== recipientAddress;
-    if(txType == 0) {
-        recipientAddressZero.out === 1;
-        
-        nullifiersZero[0].out + nullifiersZero[1].out + nullifiersZero[2].out + nullifiersZero[3].out === 4;
-        commitmentsZero[1].out + commitmentsZero[2].out === 2;
-
-    } else {
-        recipientAddressZero.out === 0;
-        nullifiersZero[0].out <== 0;
-
-        if(txType == 1) {
-            commitmentsZero[0].out === 0;
-        } else {
-            commitmentsZero[2].out === 1;
-        }
-    }
-
-    component firstCompressedSecretsZero = IsZero();
-    firstCompressedSecretsZero.in <== compressedSecrets[0];
-
-    component secondCompressedSecretsZero = IsZero();
-    secondCompressedSecretsZero.in <== compressedSecrets[1];
-
-    component compressedSecretsZero = IsZero();
-    compressedSecretsZero.in <== firstCompressedSecretsZero.out + secondCompressedSecretsZero.out;
-
-    if(txType == 1) {
-        compressedSecretsZero.out === 0;
-    } else {
-        firstCompressedSecretsZero.out === 1;
-        secondCompressedSecretsZero.out === 1;
     }
 }

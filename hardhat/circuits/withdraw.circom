@@ -156,7 +156,6 @@ template VerifyNullifiers(minNullifiers, maxNullifiers) {
         calculatedNullifierHashFee[i].inputs[4] <== zkpPublicKey[i].Ay;
         calculatedNullifierHashFee[i].inputs[5] <== oldCommitmentSalts[i];
 
-        //TODO: This is probably wrong!
         nullifier[i] = Mux2();
         nullifier[i].c[0] <== calculatedNullifierHash[i].out;
         nullifier[i].c[1] <== 0;
@@ -165,7 +164,6 @@ template VerifyNullifiers(minNullifiers, maxNullifiers) {
         nullifier[i].s[0] <== isNullifierValueZero[i].out;
         nullifier[i].s[1] <== (i+1) == minNullifiers;
 
-        //TODO: This is probably wrong
         nullifierFee[i] = Mux1();
         nullifierFee[i].c[0] <== calculatedNullifierHashFee[i].out;
         nullifierFee[i].c[1] <== 0;
@@ -182,10 +180,9 @@ template VerifyNullifiers(minNullifiers, maxNullifiers) {
         //TODO: comment by now
         //assert(isEqualNullifier[i].out == 1 || isEqualNullifierFee[i].out == 1);
 
-        //TODO: This is probably wrong
         validCalculatedOldCommitmentHash[i] = Mux1();
-        validCalculatedOldCommitmentHash[i].c[0] <== calculatedNullifierHash[i].out;
-        validCalculatedOldCommitmentHash[i].c[1] <== calculatedNullifierHashFee[i].out;
+        validCalculatedOldCommitmentHash[i].c[0] <== calculatedNullifierHashFee[i].out;
+        validCalculatedOldCommitmentHash[i].c[1] <== calculatedNullifierHash[i].out;
         validCalculatedOldCommitmentHash[i].s <== isEqualNullifier[i].out;
 
         pathCheck[i] = PathCheck();
@@ -246,7 +243,6 @@ template VerifyCommitments(minCommitments, maxCommitments) {
         calculatedCommitmentHashFee[i].inputs[4] <== recipientPublicKey[i][1];
         calculatedCommitmentHashFee[i].inputs[5] <== newCommitmentsSalts[i];
 
-        //TODO: This is probably wrong!
         commitment[i] = Mux2();
         commitment[i].c[0] <== calculatedCommitmentHash[i].out;
         commitment[i].c[1] <== 0;
@@ -336,6 +332,7 @@ template Withdraw() {
         tokenIdNum.f[i] <== tokenId[i];
     }
 
+    //Verify public transaction structure
     component structureValidity = VerifyStructure(2);
     structureValidity.value <== value;
     structureValidity.fee <== fee;
@@ -382,6 +379,7 @@ template Withdraw() {
         commitmentsValuesNum[i].f[31] <== 0;
     }
     
+    //Verify nullifiers
     component nullifiersValidity = VerifyNullifiers(1, 4);
     nullifiersValidity.packedErcAddress <== ercAddress + tokenId[0] * 1461501637330902918203684832716283019655932542976;
     nullifiersValidity.idRemainder <== idRemainder.out;
@@ -398,6 +396,7 @@ template Withdraw() {
         }
     }
 
+    //Verify new Commmitments
     component commitmentsValidity = VerifyCommitments(0,2);
     commitmentsValidity.packedErcAddress <== ercAddress + tokenId[0] * 1461501637330902918203684832716283019655932542976; 
     commitmentsValidity.idRemainder <== idRemainder.out;
@@ -410,9 +409,11 @@ template Withdraw() {
         commitmentsValidity.recipientPublicKey[i][1] <== recipientPublicKey[i][1];
     }
 
+    //Verify Changes
     assert(commitmentsValuesNum[0].out == 0 || 
         (nullifiersValidity.firstInputZkpPublicKeys[0] == recipientPublicKey[0][0] && nullifiersValidity.firstInputZkpPublicKeys[1] == recipientPublicKey[0][1]));
     
+    //Verify Fee change
     assert(commitmentsValuesNum[1].out == 0 || 
         (nullifiersValidity.firstInputZkpPublicKeys[0] == recipientPublicKey[1][0] && nullifiersValidity.firstInputZkpPublicKeys[1] == recipientPublicKey[1][1]));
 
