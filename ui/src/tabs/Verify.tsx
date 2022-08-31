@@ -8,25 +8,20 @@ import Loading from "./components/Loading";
 import { Typography } from "@mui/material";
 
 export default function Upload() {
-
-    const [a, setA] = useState("");
-    const [b, setB] = useState("");
-    const [aDisable, setADisable] = useState(true);
-    const [bDisable, setBDisable] = useState(true);
-
-    const [c, setC] = useState("");
+    const [result, setResult] = useState("");
 
     const [error, setError] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [Verifying, setVerifying] = useState(false);
 
-    const verify = async (event: any) => {
+    const verifyDeposit = async (event: any) => {
         event.preventDefault();
         setError(false);
 
+        setResult('');
         setVerifying(true);
 
-        const inputDeposit = {
+        const input = {
             value: "10",
             fee: "1",
             transactionType: "0",
@@ -49,57 +44,112 @@ export default function Upload() {
             ],
           };
       
-        const verifyDeposit = await verifyProof(inputDeposit, "deposit")
+        const verifyResult = await verifyProof(input, "deposit")
         .catch((error: any) => {
             setErrorMsg(error.toString());
             setError(true);
             setVerifying(false);
         });
 
-        console.log('Verify_deposit:', verifyDeposit);
+        setResult('Verification successful!');
+        console.log('Verify_deposit:', verifyResult);
 
-        setC(await verifyProof({"a": a, "b": b}, "circuit")
-            .catch((error: any) => {
-                setErrorMsg(error.toString());
-                setError(true);
-                setVerifying(false);
-            }));
         setVerifying(false);
         event.preventDefault();
     }
 
-    const aHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.value !== "") {
-            setA(event.target.value);
-            setADisable(false);
-        }
-        else {
-            setADisable(true);
-        }
-    };
-    
-    const bHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.value !== "") {
-            setB(event.target.value);
-            setBDisable(false);
-        }
-        else {
-            setBDisable(true);
-        }
-    };
+    const verifyTransfer = async (event: any) => {
+        event.preventDefault();
+        setError(false);
 
-    const enterHandler = async (event: any) => {
-        if (event.which === "13") {
-            event.preventDefault();
-        }
-    };
+        setResult('');
+        setVerifying(true);
 
+        const input = {
+            value: "5",
+            fee: "1",
+            transactionType: "2",
+            tokenType: "0",
+            historicRootBlockNumberL2: ["11", "0", "0", "0"],
+            tokenId: ["0", "0", "0", "0", "0", "0", "0", "0"],
+            ercAddress: "960699023364902747365841658758402216564479912730",
+            recipientAddress: ["0", "0", "0", "2626364022", "3566212122", "3779333542", "1625583847", "3224673379"],
+            commitments: [ "0","0","0"],
+            nullifiers: ["16690496559407775916445446834537593700685561270220665077969058823409836852962","0","0","0"],
+            compressedSecrets: ["0","0"],
+            roots: ["19888252068360704972617775472110099774585749824932080815253069067751286763241", "0", "0", "0"],
+            maticAddress : "960699023364902747365841658758402216564479912730",
+            nullifiersValues: [["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "6"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]],
+            nullifiersSalts: ["910933311403153886573492298157915218632336554348728064053859916887894000808", "0", "0", "0"],
+            rootKey: ["2279923558995011751611063584918713773156544989985830828459384641106187332209", "2279923558995011751611063584918713773156544989985830828459384641106187332209", "2279923558995011751611063584918713773156544989985830828459384641106187332209", "2279923558995011751611063584918713773156544989985830828459384641106187332209"],
+            paths: [["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "18394191839627464572507032832509135503142752581515568090019488802383358242240", "16738089486957597367685845935934957606225805288164149997419763669908395117814", "0", "21077168410262108127630258607467506773356963766951707343352808602383723322174"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]],
+            orders: ["13", "0", "0", "0"],
+            commitmentsValues: [["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]],
+            commitmentsSalts: ["0", "0"],
+            recipientPublicKey: [["0", "0"], ["0", "0"]],
+            ephemeralKey: ["0", "0", "0", "0", "0", "0", "0", "0"],
+            ercAddressTransfer: "960699023364902747365841658758402216564479912730",
+            idTransfer: ["0", "0", "0", "0", "0", "0", "0", "0"]
+          };
+      
+        const verifyResult = await verifyProof(input, "transfer")
+        .catch((error: any) => {
+            setErrorMsg(error.toString());
+            setError(true);
+            setVerifying(false);
+        });
 
-    const keyHandler = async (event: any) => {
-        if (['e', 'E', '+', '.', 'Enter'].includes(event.key)) {
-            event.preventDefault();
-        }
-    };
+        setResult('Verification successful!');
+        console.log('Verify_transfer:', verifyResult);
+
+        setVerifying(false);
+        event.preventDefault();
+    }
+
+    const verifyWithdraw = async (event: any) => {
+        event.preventDefault();
+        setError(false);
+
+        setResult('');
+        setVerifying(true);
+
+        const input = {
+            value: "5",
+            fee: "1",
+            transactionType: "2",
+            tokenType: "0",
+            historicRootBlockNumberL2: ["11", "0", "0", "0"],
+            tokenId: ["0", "0", "0", "0", "0", "0", "0", "0"],
+            ercAddress: "960699023364902747365841658758402216564479912730",
+            recipientAddress: ["0", "0", "0", "2626364022", "3566212122", "3779333542", "1625583847", "3224673379"],
+            commitments: [ "0","0","0"],
+            nullifiers: ["16690496559407775916445446834537593700685561270220665077969058823409836852962","0","0","0"],
+            compressedSecrets: ["0","0"],
+            roots: ["19888252068360704972617775472110099774585749824932080815253069067751286763241", "0", "0", "0"],
+            maticAddress : "960699023364902747365841658758402216564479912730",
+            nullifiersValues: [["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "6"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]],
+            nullifiersSalts: ["910933311403153886573492298157915218632336554348728064053859916887894000808", "0", "0", "0"],
+            rootKey: ["2279923558995011751611063584918713773156544989985830828459384641106187332209", "2279923558995011751611063584918713773156544989985830828459384641106187332209", "2279923558995011751611063584918713773156544989985830828459384641106187332209", "2279923558995011751611063584918713773156544989985830828459384641106187332209"],
+            paths: [["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "18394191839627464572507032832509135503142752581515568090019488802383358242240", "16738089486957597367685845935934957606225805288164149997419763669908395117814", "0", "21077168410262108127630258607467506773356963766951707343352808602383723322174"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]],
+            orders: ["13", "0", "0", "0"],
+            commitmentsValues: [["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"], ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]],
+            commitmentsSalts: ["0", "0"],
+            recipientPublicKey: [["0", "0"], ["0", "0"]]
+          };
+      
+        const verifyResult = await verifyProof(input, "withdraw")
+        .catch((error: any) => {
+            setErrorMsg(error.toString());
+            setError(true);
+            setVerifying(false);
+        });
+
+        setResult('Verification successful!');
+        console.log('Verify_withdraw:', verifyResult);
+
+        setVerifying(false);
+        event.preventDefault();
+    }
 
     return (
         <Box
@@ -112,40 +162,26 @@ export default function Upload() {
             autoComplete="off"
             textAlign="center"
         >
-            <TextField
-                id="input-a"
-                label="a"
-                type="number"
-                InputLabelProps={{
-                    shrink: true,
-                }}
-                variant="filled"
-                onKeyDown={keyHandler}
-                onChange={aHandler}
-                onKeyPress={enterHandler}
-            /><br />
-            <TextField
-                id="input-b"
-                label="b"
-                type="number"
-                InputLabelProps={{
-                    shrink: true,
-                }}
-                variant="filled"
-                onKeyDown={keyHandler}
-                onChange={bHandler}
-                onKeyPress={enterHandler}
-            /><br />
+
             <Button
-                onClick={verify}
-                disabled={(aDisable || bDisable)}
+                onClick={verifyDeposit}
                 variant="contained">
-                Verify
+                Verify deposit
+            </Button>&nbsp;
+            <Button
+                onClick={verifyTransfer}
+                variant="contained">
+                Verify transfer
+            </Button>&nbsp;
+            <Button
+                onClick={verifyWithdraw}
+                variant="contained">
+                Verify withdraw
             </Button>
             <br /><br />
             {Verifying ? <Loading text="Verifying proof..." /> : <div />}
             {error ? <Alert severity="error" sx={{ textAlign: "left" }}>{errorMsg}</Alert> : <div />}
-            <Typography>{c}</Typography>
+            <Typography>{result}</Typography>
         </Box>
     );
 }

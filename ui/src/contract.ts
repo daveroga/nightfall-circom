@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import address from "./artifacts/address.json";
-import Verifier from "./artifacts/Verifier.json";
 import Verifier_deposit from "./artifacts/Verifier_deposit.json";
 import Verifier_transfer from "./artifacts/Verifier_transfer.json";
 import Verifier_withdraw from "./artifacts/Verifier_withdraw.json";
@@ -16,13 +15,6 @@ export async function connectContract(circuit: string) {
   console.log("signer: ", await signer.getAddress());
 
   switch (circuit) {
-    case "circuit":
-        verifier = new ethers.Contract(
-            address['Verifier'],
-            Verifier.abi,
-            signer
-        );
-        break;
     case "deposit":
         verifier = new ethers.Contract(
             address['Verifier_deposit'],
@@ -46,7 +38,7 @@ export async function connectContract(circuit: string) {
         break;
   }
 
-  console.log("Connect to Verifier Contract:", Verifier);
+  console.log("Connect to Verifier Contract:", verifier);
 }
 
 export async function verifyProof(input: Object, circuit: string) {
