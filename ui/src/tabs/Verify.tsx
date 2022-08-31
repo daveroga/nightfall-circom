@@ -25,7 +25,40 @@ export default function Upload() {
         setError(false);
 
         setVerifying(true);
-        setC(await verifyProof({"a": a, "b": b})
+
+        const inputDeposit = {
+            value: "10",
+            fee: "1",
+            transactionType: "0",
+            tokenType: "0",
+            historicRootBlockNumberL2: ["0", "0", "0", "0"],
+            tokenId: ["0", "0", "0", "0", "0", "0", "0", "0"],
+            ercAddress: "960699023364902747365841658758402216564479912730",
+            recipientAddress: ["0", "0", "0", "0", "0", "0", "0", "0"],
+            commitments: [
+              "18194298703583555145399719899310559283497951657938518952689475720866966491995",
+              "0",
+              "0",
+            ],
+            nullifiers: ["0", "0", "0", "0"],
+            compressedSecrets: ["0", "0"],
+            salt: "18695785846276126922150156231153876831829526029353662941356423108480790596349",
+            recipientPublicKey: [
+              "8490685904787475746369366901729727151930997402058548597274067437080179631982",
+              "16019898780588040648157153023567746553375452631966740349901590026272037097498",
+            ],
+          };
+      
+        const verifyDeposit = await verifyProof(inputDeposit, "deposit")
+        .catch((error: any) => {
+            setErrorMsg(error.toString());
+            setError(true);
+            setVerifying(false);
+        });
+
+        console.log('Verify_deposit:', verifyDeposit);
+
+        setC(await verifyProof({"a": a, "b": b}, "circuit")
             .catch((error: any) => {
                 setErrorMsg(error.toString());
                 setError(true);

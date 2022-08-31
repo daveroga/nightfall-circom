@@ -1,39 +1,73 @@
 import { ethers } from "ethers";
-import address from './artifacts/address.json';
-import Verifier from './artifacts/Verifier.json';
-import { generateCalldata } from './circuit_js/generate_calldata';
+import address from "./artifacts/address.json";
+import Verifier from "./artifacts/Verifier.json";
+import Verifier_deposit from "./artifacts/Verifier_deposit.json";
+import Verifier_transfer from "./artifacts/Verifier_transfer.json";
+import Verifier_withdraw from "./artifacts/Verifier_withdraw.json";
+import { generateCalldata } from "./circuit_js/generate_calldata";
 
 let verifier: ethers.Contract;
 
-export async function connectContract() {
-    const { ethereum } = window;
+export async function connectContract(circuit: string) {
+  const { ethereum } = window;
 
-    let provider = new ethers.providers.Web3Provider(ethereum);
-    let signer = provider.getSigner();
-    console.log('signer: ', await signer.getAddress());
+  let provider = new ethers.providers.Web3Provider(ethereum);
+  let signer = provider.getSigner();
+  console.log("signer: ", await signer.getAddress());
 
-    verifier = new ethers.Contract(address['Verifier'], Verifier.abi, signer);
+  switch (circuit) {
+    case "circuit":
+        verifier = new ethers.Contract(
+            address['Verifier'],
+            Verifier.abi,
+            signer
+        );
+        break;
+    case "deposit":
+        verifier = new ethers.Contract(
+            address['Verifier_deposit'],
+            Verifier_deposit.abi,
+            signer
+        );
+        break;
+    case "transfer":
+        verifier = new ethers.Contract(
+            address['Verifier_transfer'],
+            Verifier_transfer.abi,
+            signer
+        );
+        break;
+    case "withdraw":
+        verifier = new ethers.Contract(
+            address['Verifier_withdraw'],
+            Verifier_withdraw.abi,
+            signer
+        );
+        break;
+  }
 
-    console.log("Connect to Verifier Contract:", Verifier);
+  console.log("Connect to Verifier Contract:", Verifier);
 }
 
-export async function verifyProof(input: Object) {
+export async function verifyProof(input: Object, circuit: string) {
+  await connectContract(circuit);
 
-    await connectContract();
-    
-    let calldata = await generateCalldata(input);
+  let calldata = await generateCalldata(input, circuit);
 
-    if (calldata) {
-        console.log('Verifying proof...');
-        let valid = await verifier.verifyProof(calldata[0], calldata[1], calldata[2], calldata[3]);
-        if (valid) {
-            return calldata[3];
-        }
-        else {
-            throw new Error("Invalid proof.");
-        }
+  if (calldata) {
+    console.log("Verifying proof...");
+    let valid = await verifier.verifyProof(
+      calldata[0],
+      calldata[1],
+      calldata[2],
+      calldata[3]
+    );
+    if (valid) {
+      return calldata[3];
+    } else {
+      throw new Error("Invalid proof.");
     }
-    else {
-        throw new Error("Witness generation failed.");
-    }
+  } else {
+    throw new Error("Witness generation failed.");
+  }
 }
